@@ -30,7 +30,7 @@
 
     <!-- Content Weaver Section -->
     <section class="content-weaver">
-      <h2 style="color: #00ffcc; text-align: center; margin-bottom: 25px;">
+      <h2 class="section-title">
         <i class="fas fa-spider-web"></i> Weave Your Story
       </h2>
       
@@ -76,6 +76,84 @@
         </div>
       </div>
     </section>
+
+    <!-- Platform Statistics Grid -->
+    <div class="platform-grid">
+      <!-- YouTube Card -->
+      <div class="platform-card" id="youtube">
+        <i class="fab fa-youtube fa-2x" style="color: #ff0000;"></i>
+        <h2>YouTube</h2>
+        <div class="platform-stats">
+          <p>Views: <span id="yt-views">1.2M</span></p>
+          <p>Subscribers: <span id="yt-subs">25K</span></p>
+        </div>
+        <div class="platform-actions">
+          <button class="refresh-btn" onclick="refreshPlatformStats('youtube')">Refresh</button>
+          <button class="connect-btn" onclick="handlePlatformConnection('youtube')">
+            <i class="fas fa-link"></i> Connect
+          </button>
+        </div>
+      </div>
+
+      <!-- Instagram Card -->
+      <div class="platform-card" id="instagram">
+        <i class="fab fa-instagram fa-2x" style="color: #e1306c;"></i>
+        <h2>Instagram</h2>
+        <div class="platform-stats">
+          <p>Followers: <span id="ig-followers">58K</span></p>
+          <p>Engagement: <span id="ig-engagement">8.2%</span></p>
+        </div>
+        <div class="platform-actions">
+          <button class="refresh-btn" onclick="refreshPlatformStats('instagram')">Refresh</button>
+          <button class="connect-btn" onclick="handlePlatformConnection('instagram')">
+            <i class="fas fa-link"></i> Connect
+          </button>
+        </div>
+      </div>
+
+      <!-- TikTok Card -->
+      <div class="platform-card" id="tiktok">
+        <i class="fab fa-tiktok fa-2x" style="color: #000000;"></i>
+        <h2>TikTok</h2>
+        <div class="platform-stats">
+          <p>Followers: <span id="tt-followers">142K</span></p>
+          <p>Views: <span id="tt-views">4.8M</span></p>
+        </div>
+        <div class="platform-actions">
+          <button class="refresh-btn" onclick="refreshPlatformStats('tiktok')">Refresh</button>
+          <button class="connect-btn" onclick="handlePlatformConnection('tiktok')">
+            <i class="fas fa-link"></i> Connect
+          </button>
+        </div>
+      </div>
+
+      <!-- Snapchat Card -->
+      <div class="platform-card" id="snapchat">
+        <i class="fab fa-snapchat fa-2x" style="color: #fffc00;"></i>
+        <h2>Snapchat</h2>
+        <div class="platform-stats">
+          <p>Views: <span id="sc-views">892K</span></p>
+          <p>Snaps: <span id="sc-snaps">1.4K</span></p>
+        </div>
+        <div class="platform-actions">
+          <button class="refresh-btn" onclick="refreshPlatformStats('snapchat')">Refresh</button>
+          <button class="connect-btn" onclick="handlePlatformConnection('snapchat')">
+            <i class="fas fa-link"></i> Connect
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics Chart -->
+    <div class="chart-container has-data" id="analyticsChartContainer">
+      <canvas id="analyticsChart"></canvas>
+      <div class="loading-overlay" id="chartLoading">
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+
+    <!-- Error Display -->
+    <div id="errorDisplay" class="error-message"></div>
   </div>
 
   <!-- Dependencies -->
