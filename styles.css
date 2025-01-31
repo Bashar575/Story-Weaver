@@ -1,0 +1,294 @@
+/* ======================== BASE STYLES ======================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #0f1729 0%, #1a1f35 100%);
+  color: #fff;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ======================== HEADER STYLES ======================== */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+
+.logo-container {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+  animation: webPulse 2s infinite alternate;
+}
+
+@keyframes webPulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.orb-weaver-logo {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 5px rgba(0, 255, 204, 0.5));
+}
+
+.title {
+  font-size: 2.5em;
+  background: linear-gradient(45deg, #00ffcc, #33ccff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 2px;
+  margin-bottom: 15px;
+}
+
+/* ======================== CONTENT WEAVER SECTION ======================== */
+.content-weaver {
+  background: rgba(30, 30, 60, 0.9);
+  padding: 30px;
+  border-radius: 15px;
+  margin-bottom: 40px;
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 255, 204, 0.1);
+}
+
+.upload-area {
+  border: 2px dashed rgba(0, 255, 204, 0.3);
+  border-radius: 10px;
+  padding: 40px;
+  text-align: center;
+  margin: 20px 0;
+  background: rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.upload-area.dragover {
+  border-color: #00ffcc;
+  background: rgba(0, 255, 204, 0.1);
+}
+
+.story-controls {
+  margin-top: 25px;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 2fr 1fr;
+}
+
+.story-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  min-height: 150px;
+  resize: vertical;
+}
+
+/* ======================== PLATFORM GRID ======================== */
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  align-items: start;
+}
+
+.platform-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 25px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  border-radius: 15px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.platform-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 255, 204, 0.2);
+}
+
+.platform-card h2 {
+  color: #00ffcc;
+  margin: 15px 0;
+}
+
+.platform-stats p {
+  margin: 10px 0;
+  color: #ddd;
+}
+
+/* ======================== PLATFORM ACTIONS ======================== */
+.platform-actions {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.refresh-btn {
+  background: rgba(0, 255, 204, 0.1);
+  color: #00ffcc;
+  border: 1px solid #00ffcc;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.refresh-btn:hover {
+  background: rgba(0, 255, 204, 0.2);
+}
+
+.connect-btn {
+  background: rgba(155, 89, 182, 0.1);
+  color: #9b59b6;
+  border: 1px solid #9b59b6;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.9em;
+}
+
+.connect-btn:hover {
+  background: rgba(155, 89, 182, 0.2);
+  transform: translateY(-1px);
+}
+
+.connect-btn.connected {
+  background: rgba(46, 204, 113, 0.1);
+  color: #2ecc71;
+  border-color: #2ecc71;
+}
+
+.connect-btn.connected:hover {
+  background: rgba(46, 204, 113, 0.2);
+}
+
+/* ======================== ERROR MESSAGES ======================== */
+.error-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  background: #ff4444;
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.error-message.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ======================== CHART & LOADING STATES ======================== */
+.chart-container {
+  margin: 40px 0;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  border-radius: 15px;
+  position: relative;
+  height: 400px;
+  backdrop-filter: blur(5px);
+  display: none;
+}
+
+.chart-container.has-data {
+  display: block;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(26, 31, 53, 0.95);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  z-index: 1000;
+}
+
+.loading-overlay:not(:first-of-type) {
+  display: none !important;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #00ffcc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ======================== DARK THEME FIXES ======================== */
+.chartjs-render-monitor {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* ======================== PLATFORM CHECKBOXES ======================== */
+.platform-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.platform-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
+}
+
+.platform-option:hover {
+  background: rgba(0, 255, 204, 0.1);
+}
+
+.platform-option input[type="checkbox"] {
+  accent-color: #00ffcc;
+}

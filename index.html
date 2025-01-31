@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Story Weaver - Digital Narrative Platform</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header Section -->
+    <header class="header">
+      <div class="logo-container">
+        <svg class="orb-weaver-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="45" stroke="#00ffcc" stroke-dasharray="2 4" opacity="0.3" fill="none"/>
+          <path d="M50 5v90M5 50h90" stroke="#00ffcc" stroke-linecap="round"/>
+          <g transform="rotate(45 50 50)">
+            <path d="M50 5v90M5 50h90" stroke="#00ffcc" stroke-linecap="round"/>
+          </g>
+          <circle cx="50" cy="50" r="8" fill="#1a1f35" stroke="#00ffcc" stroke-width="1.5"/>
+          <path d="M50 42l-4 8 4-3 4 3-4-8z" fill="#00ffcc"/>
+          <path d="M50 5a45 45 0 0 1 45 45" stroke="rgba(0,255,204,0.5)" 
+                stroke-width="1" stroke-dasharray="5 3" opacity="0.8" fill="none"/>
+        </svg>
+      </div>
+      <h1 class="title">THE STORY WEAVER</h1>
+      <p>Spin your narrative across the digital web</p>
+    </header>
+
+    <!-- Content Weaver Section -->
+    <section class="content-weaver">
+      <h2 style="color: #00ffcc; text-align: center; margin-bottom: 25px;">
+        <i class="fas fa-spider-web"></i> Weave Your Story
+      </h2>
+      
+      <!-- File Upload Area -->
+      <div class="upload-area" id="uploadArea">
+        <p>Drag and drop your story here</p>
+        <p>or</p>
+        <button class="refresh-btn" onclick="document.getElementById('storyUpload').click()">
+          <i class="fas fa-file-upload"></i> Choose File
+        </button>
+        <input type="file" id="storyUpload" hidden accept="image/*, video/*">
+        <div class="loading-overlay" id="uploadLoading">
+          <div class="loading-spinner"></div>
+        </div>
+      </div>
+
+      <!-- Story Controls -->
+      <div class="story-controls">
+        <textarea 
+          id="storyCaption" 
+          placeholder="Spin your narrative..."
+          class="story-input"
+        ></textarea>
+        
+        <!-- Platform Selection -->
+        <div class="platform-checkboxes">
+          <div class="platform-option">
+            <input type="checkbox" id="ytCheck" checked>
+            <label for="ytCheck">YouTube</label>
+          </div>
+          <div class="platform-option">
+            <input type="checkbox" id="igCheck" checked>
+            <label for="igCheck">Instagram</label>
+          </div>
+          <div class="platform-option">
+            <input type="checkbox" id="ttCheck" checked>
+            <label for="ttCheck">TikTok</label>
+          </div>
+          <div class="platform-option">
+            <input type="checkbox" id="scCheck" checked>
+            <label for="scCheck">Snapchat</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Platform Statistics Grid -->
+    <div class="platform-grid">
+      <!-- YouTube Card -->
+      <div class="platform-card" id="youtube">
+        <i class="fab fa-youtube fa-2x" style="color: #ff0000;"></i>
+        <h2>YouTube</h2>
+        <div class="platform-stats">
+          <p>Views: <span id="yt-views">1.2M</span></p>
+          <p>Subscribers: <span id="yt-subs">25K</span></p>
+        </div>
+        <div class="platform-actions">
+          <button class="refresh-btn" onclick="refreshYouTube()">Refresh</button>
+          <button class="connect-btn" onclick="handlePlatformConnection('youtube')">
+            <i class="fas fa-link"></i> Connect
+          </button>
+        </div>
+      </div>
+
+      <!-- Instagram Card -->
+      <div class="platform-card" id="instagram">
+        <i class="fab fa-instagram fa-2x" style="color: #e1306c;"></i>
+        <h2>Instagram</h2>
+        <div class="platform-stats">
+          <p>Followers: <span id="ig-followers">58K</span></p>
+          <p>Engagement: <span id="ig-engagement">8.2%</span></p>
+        </div>
+        <div class="platform-actions">
+          <button class="refresh-btn" onclick="refreshInstagram()">Refresh</button>
+          <button class="connect-btn" onclick="handlePlatformConnection('instagram')">
+            <i class="fas fa-link"></i> Connect
+          </button>
+        </div>
+      </div>
+
+      <!-- TikTok Card -->
+      <div class="platform-card" id="tiktok">
+        <i class="fab fa-tiktok fa-2x" style="color: #000000;"></i>
+        <h2>TikTok</h2>
+        <div class="platform-stats">
+          <p>Followers: <span id="tt-followers">142K</span></p>
+          <p>Views: <span id="tt-views">4.8M</span></p>
+        </div>
+        <div class="platform-actions">
+          <button class="refresh-btn" onclick="refreshTikTok()">Refresh</button>
+          <button class="connect-btn" onclick="handlePlatformConnection('tiktok')">
+            <i class="fas fa-link"></i> Connect
+          </button>
+        </div>
+      </div>
+
+      <!-- Snapchat Card -->
+      <div class="platform-card" id="snapchat">
+        <i class="fab fa-snapchat fa-2x" style="color: #fffc00;"></i>
+        <h2>Snapchat</h2>
+        <div class="platform-stats">
+          <p>Views: <span id="sc-views">892K</span></p>
+          <p>Snaps: <span id="sc-snaps">1.4K</span></p>
+        </div>
+        <div class="platform-actions">
+          <button class="refresh-btn" onclick="refreshSnapchat()">Refresh</button>
+          <button class="connect-btn" onclick="handlePlatformConnection('snapchat')">
+            <i class="fas fa-link"></i> Connect
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics Chart -->
+    <div class="chart-container has-data" id="analyticsChartContainer">
+      <canvas id="analyticsChart"></canvas>
+      <div class="loading-overlay" id="chartLoading">
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+
+    <!-- Error Display -->
+    <div id="errorDisplay" class="error-message"></div>
+  </div>
+
+  <!-- Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dexie@latest/dist/dexie.js"></script>
+  <script src="script.js"></script>
+  <!-- Add this right before </body> -->
+<script>
+// Handle OAuth callback
+if (window.opener && new URLSearchParams(window.location.search).has('code')) {
+  const code = new URLSearchParams(window.location.search).get('code');
+  window.opener.postMessage({ 
+    platform: 'youtube', // Detect platform from URL
+    code: code 
+  }, '*');
+  window.close();
+}
+</script>
+</body>
+</html>
