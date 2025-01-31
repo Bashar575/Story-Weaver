@@ -28,6 +28,18 @@ const platformData = {
 const db = new Dexie('StoryWeaverDB');
 let analyticsChart;
 
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_BUCKET.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const storage = firebase.storage();
+
 // ========================
 // DATABASE INITIALIZATION
 // ========================
@@ -35,6 +47,108 @@ db.version(2).stores({
   connections: 'platform, token, connectedAt',
   drafts: '++id, content, timestamp',
   metrics: 'platform, timestamp'
+});
+
+// ========================
+// FILE UPLOAD FUNCTIONALITY
+// ========================
+async function uploadFile() {
+  const fileInput = document.getElementById('storyUpload');
+  const file = fileInput.files[0];
+  const caption = document.getElementById('storyCaption').value;
+  const loadingOverlay = document.getElementById('uploadLoading');
+
+  if (!file) {
+    showMessage('Please select a file', 'error');
+    return;
+  }
+
+  try {
+    // Show loading state
+    loadingOverlay.style.display = 'flex';
+    
+    // Create storage reference with organized path
+    const filePath = `uploads/${Date.now()}_${file.name}`;
+    const storageRef = storage.ref(filePath);
+    
+    // Upload file with metadata
+    const snapshot = await storageRef.put(file, {
+      customMetadata: {
+        caption: caption,
+        platforms: getSelectedPlatforms().join(','),
+        uploadDate: new Date().toISOString()
+      }
+    });
+    
+    // Get download URL
+    const downloadURL = await snapshot.ref.getDownloadURL();
+
+    // Store metadata in Dexie
+    await db.drafts.add({
+      content: {
+        fileURL: downloadURL,
+        caption: caption,
+        platforms: getSelectedPlatforms(),
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size
+      },
+      timestamp: Date.now()
+    });
+
+    showMessage('File uploaded successfully!', 'success');
+    refreshUploadUI();
+    updateUploadHistory();
+  } catch (error) {
+    showMessage(`Upload failed: ${error.message}`, 'error');
+  } finally {
+    loadingOverlay.style.display = 'none';
+  }
+}
+
+// ========================
+// HELPER FUNCTIONS
+// ========================
+function getSelectedPlatforms() {
+  return Array.from(document.querySelectorAll('.platform-option input:checked'))
+    .map(input => input.id.replace('Check', '').toLowerCase());
+}
+
+function refreshUploadUI() {
+  document.getElementById('storyUpload').value = '';
+  document.getElementById('storyCaption').value = '';
+  document.querySelectorAll('.platform-option input').forEach(input => {
+    input.checked = true; // Reset to default checked state
+  });
+}
+
+async function updateUploadHistory() {
+  const uploads = await db.drafts.reverse().toArray();
+  // Implement your UI update logic for showing upload history
+}
+
+// ========================
+// DRAG & DROP HANDLING
+// ========================
+const uploadArea = document.getElementById('uploadArea');
+
+uploadArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+  uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    document.getElementById('storyUpload').files = files;
+    uploadFile();
+  }
 });
 
 // ========================
@@ -245,34 +359,5 @@ async function refreshPlatformStats(platform) {
     fetchPlatformStats(platform, connection.token);
   } else {
     showMessage(`Please connect to ${platform} first.`, 'error');
-  }
-}
-async function uploadFile() {
-  const fileInput = document.getElementById('storyUpload');
-  const file = fileInput.files[0];
-
-  if (!file) {
-    alert('Please select a file');
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('file', file);
-
-  try {
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData
-    });
-
-    const result = await response.json();
-    if (result.success) {
-      alert('File uploaded successfully!');
-    } else {
-      alert('File upload failed');
-    }
-  } catch (error) {
-    console.error('Upload error:', error);
-    alert('File upload failed');
   }
 }
