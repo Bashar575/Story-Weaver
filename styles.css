@@ -148,13 +148,8 @@ body {
   color: #ddd;
 }
 
-/* ======================== UPLOAD BUTTON ======================== */
-.upload-action-container {
-  text-align: center;
-  margin: 40px 0;
-}
-
-.upload-action-btn {
+/* ======================== BUTTON STYLES ======================== */
+.upload-btn, .refresh-btn, .connect-btn, .upload-action-btn {
   background: rgba(0, 255, 204, 0.1);
   color: #00ffcc;
   border: 1px solid #00ffcc;
@@ -166,11 +161,74 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+.upload-btn:hover, .refresh-btn:hover, .connect-btn:hover, .upload-action-btn:hover {
+  background: rgba(0, 255, 204, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 255, 204, 0.3);
+}
+
+.upload-btn:active, .refresh-btn:active, .connect-btn:active, .upload-action-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Specific styles for Connect and Refresh buttons */
+.connect-btn {
+  background: rgba(155, 89, 182, 0.1);
+  color: #9b59b6;
+  border-color: #9b59b6;
+}
+
+.connect-btn:hover {
+  background: rgba(155, 89, 182, 0.2);
+}
+
+.connect-btn.connected {
+  background: rgba(46, 204, 113, 0.1);
+  color: #2ecc71;
+  border-color: #2ecc71;
+}
+
+.connect-btn.connected:hover {
+  background: rgba(46, 204, 113, 0.2);
+}
+
+.refresh-btn {
+  background: rgba(255, 204, 0, 0.1);
+  color: #ffcc00;
+  border-color: #ffcc00;
+}
+
+.refresh-btn:hover {
+  background: rgba(255, 204, 0, 0.2);
+}
+
+/* Specific styles for Choose File button */
+.upload-btn {
+  background: rgba(0, 255, 204, 0.1);
+  color: #00ffcc;
+  border-color: #00ffcc;
+}
+
+.upload-btn:hover {
+  background: rgba(0, 255, 204, 0.2);
+}
+
+/* Specific styles for Upload Story button */
+.upload-action-btn {
+  background: rgba(0, 255, 204, 0.1);
+  color: #00ffcc;
+  border-color: #00ffcc;
+  margin-top: 20px;
 }
 
 .upload-action-btn:hover {
   background: rgba(0, 255, 204, 0.2);
-  transform: translateY(-2px);
 }
 
 /* ======================== ERROR MESSAGES ======================== */
