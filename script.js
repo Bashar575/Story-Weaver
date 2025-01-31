@@ -30,13 +30,23 @@ let analyticsChart;
 
 // Initialize Firebase
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_BUCKET.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+
+  apiKey: "AIzaSyCVnk08gIu8FxxVpBJZF1XqISJoVzeLBHI",
+
+  authDomain: "web-weaver-cda29.firebaseapp.com",
+
+  projectId: "web-weaver-cda29",
+
+  storageBucket: "web-weaver-cda29.firebasestorage.app",
+
+  messagingSenderId: "384391887170",
+
+  appId: "1:384391887170:web:eac82ad449276ebb56f0db",
+
+  measurementId: "G-S54F8VX9GH"
+
 };
+
 firebase.initializeApp(firebaseConfig);
 const storage = firebase.storage();
 
@@ -359,5 +369,67 @@ async function refreshPlatformStats(platform) {
     fetchPlatformStats(platform, connection.token);
   } else {
     showMessage(`Please connect to ${platform} first.`, 'error');
+  }
+}
+const GITHUB_TOKEN = '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'; // Replace with your token
+const REPO_OWNER = 'Bashar575'; // Replace with your GitHub username
+const REPO_NAME = 'Story-Weaver.github.io'; // Replace with your repository name
+
+async function uploadFile() {
+  const fileInput = document.getElementById('storyUpload');
+  const file = fileInput.files[0];
+  const caption = document.getElementById('storyCaption').value;
+  const loadingOverlay = document.getElementById('uploadLoading');
+
+  if (!file) {
+    showMessage('Please select a file', 'error');
+    return;
+  }
+
+  try {
+    loadingOverlay.style.display = 'flex';
+
+    const content = await file.text();
+    const base64Content = btoa(content);
+
+    const response = await fetch(
+      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/uploads/${file.name}`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'File upload',
+          content: base64Content
+        })
+      }
+    );
+
+    if (!response.ok) throw new Error('Upload failed');
+
+    const data = await response.json();
+    const fileURL = data.content.download_url;
+
+    // Store metadata in Dexie
+    await db.drafts.add({
+      content: {
+        fileURL: fileURL,
+        caption: caption,
+        platforms: getSelectedPlatforms(),
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size
+      },
+      timestamp: Date.now()
+    });
+
+    showMessage('File uploaded successfully!', 'success');
+    refreshUploadUI();
+  } catch (error) {
+    showMessage(`Upload failed: ${error.message}`, 'error');
+  } finally {
+    loadingOverlay.style.display = 'none';
   }
 }
