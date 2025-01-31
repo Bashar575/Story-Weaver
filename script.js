@@ -57,7 +57,57 @@ db.version(2).stores({
 });
 
 // ========================
-// FILE UPLOAD FUNCTIONALITY
+// FILE PREVIEW FUNCTIONALITY
+// ========================
+document.getElementById('fileInput').addEventListener('change', function (e) {
+  const file = e.target.files[0]; // Get the selected file
+  if (file) {
+    const reader = new FileReader(); // Create a FileReader to read the file
+    reader.onload = function (e) {
+      // Display the file preview
+      const filePreviewContainer = document.getElementById('filePreviewContainer');
+      filePreviewContainer.innerHTML = `<img src="${e.target.result}" alt="Selected file preview">`;
+    };
+    reader.readAsDataURL(file); // Read the file as a data URL
+  }
+});
+
+// ========================
+// DRAG & DROP HANDLING
+// ========================
+const uploadArea = document.getElementById('uploadArea');
+
+uploadArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+  uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadArea.classList.remove('dragover');
+  const files = e.dataTransfer.files; // Get the dropped files
+  if (files.length > 0) {
+    document.getElementById('fileInput').files = files; // Assign the dropped files to the file input
+    handleFilePreview(files[0]); // Show preview of the dropped file
+  }
+});
+
+// Function to handle file preview
+function handleFilePreview(file) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const filePreviewContainer = document.getElementById('filePreviewContainer');
+    filePreviewContainer.innerHTML = `<img src="${e.target.result}" alt="Selected file preview">`;
+  };
+  reader.readAsDataURL(file); // Read the file as a data URL
+}
+
+// ========================
+// UPLOAD FUNCTIONALITY
 // ========================
 async function uploadFile() {
   const fileInput = document.getElementById('fileInput');
@@ -74,48 +124,19 @@ async function uploadFile() {
     // Show loading state
     loadingOverlay.style.display = 'flex';
 
-    // Choose between Firebase or GitHub upload
-    const useFirebase = true; // Set to false to use GitHub instead
-    let fileURL;
+    // Upload to Firebase (or any other backend)
+    const filePath = `uploads/${Date.now()}_${file.name}`;
+    const storageRef = firebase.storage().ref(filePath);
+    const snapshot = await storageRef.put(file, {
+      customMetadata: {
+        caption: caption,
+        platforms: getSelectedPlatforms().join(','),
+        uploadDate: new Date().toISOString()
+      }
+    });
+    const fileURL = await snapshot.ref.getDownloadURL();
 
-    if (useFirebase) {
-      // Upload to Firebase
-      const filePath = `uploads/${Date.now()}_${file.name}`;
-      const storageRef = storage.ref(filePath);
-      const snapshot = await storageRef.put(file, {
-        customMetadata: {
-          caption: caption,
-          platforms: getSelectedPlatforms().join(','),
-          uploadDate: new Date().toISOString()
-        }
-      });
-      fileURL = await snapshot.ref.getDownloadURL();
-    } else {
-      // Upload to GitHub
-      const content = await file.text();
-      const base64Content = btoa(content);
-
-      const response = await fetch(
-        `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/uploads/${file.name}`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `token ${GITHUB_TOKEN}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: 'File upload',
-            content: base64Content
-          })
-        }
-      );
-
-      if (!response.ok) throw new Error('Upload failed');
-      const data = await response.json();
-      fileURL = data.content.download_url;
-    }
-
-    // Store metadata in Dexie
+    // Store metadata in Dexie (or any other database)
     await db.drafts.add({
       content: {
         fileURL: fileURL,
@@ -155,47 +176,17 @@ function refreshUploadUI() {
 }
 
 // ========================
-// DRAG & DROP HANDLING
+// MESSAGE DISPLAY
 // ========================
-const uploadArea = document.getElementById('uploadArea');
+function showMessage(message, type) {
+  const errorDisplay = document.getElementById('errorDisplay');
+  errorDisplay.textContent = message;
+  errorDisplay.classList.add('visible', type);
 
-uploadArea.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  uploadArea.classList.add('dragover');
-});
-
-uploadArea.addEventListener('dragleave', () => {
-  uploadArea.classList.remove('dragover');
-});
-
-uploadArea.addEventListener('drop', (e) => {
-  e.preventDefault();
-  uploadArea.classList.remove('dragover');
-  const files = e.dataTransfer.files;
-  if (files.length > 0) {
-    document.getElementById('fileInput').files = files;
-    handleFilePreview(files[0]); // Show preview of the dropped file
-  }
-});
-
-// ========================
-// FILE PREVIEW FUNCTIONALITY
-// ========================
-function handleFilePreview(file) {
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const filePreviewContainer = document.getElementById('filePreviewContainer');
-    filePreviewContainer.innerHTML = `<img src="${e.target.result}" alt="Selected file preview">`;
-  };
-  reader.readAsDataURL(file);
+  setTimeout(() => {
+    errorDisplay.classList.remove('visible', type);
+  }, 3000);
 }
-
-document.getElementById('fileInput').addEventListener('change', function (e) {
-  const file = e.target.files[0];
-  if (file) {
-    handleFilePreview(file); // Show preview of the selected file
-  }
-});
 
 // ========================
 // INITIALIZATION
@@ -239,19 +230,6 @@ async function refreshPlatformStats(platform) {
   } else {
     showMessage(`Please connect to ${platform} first.`, 'error');
   }
-}
-
-// ========================
-// MESSAGE DISPLAY
-// ========================
-function showMessage(message, type) {
-  const errorDisplay = document.getElementById('errorDisplay');
-  errorDisplay.textContent = message;
-  errorDisplay.classList.add('visible', type);
-
-  setTimeout(() => {
-    errorDisplay.classList.remove('visible', type);
-  }, 3000);
 }
 
 // ========================
