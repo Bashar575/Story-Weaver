@@ -98,6 +98,18 @@ body {
   resize: vertical;
 }
 
+.file-preview-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.file-preview-container img {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 255, 204, 0.3);
+}
+
 /* ======================== PLATFORM GRID ======================== */
 .platform-grid {
   display: grid;
@@ -136,59 +148,29 @@ body {
   color: #ddd;
 }
 
-/* ======================== PLATFORM ACTIONS ======================== */
-.platform-actions {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
+/* ======================== UPLOAD BUTTON ======================== */
+.upload-action-container {
+  text-align: center;
+  margin: 40px 0;
 }
 
-.refresh-btn {
+.upload-action-btn {
   background: rgba(0, 255, 204, 0.1);
   color: #00ffcc;
   border: 1px solid #00ffcc;
-  padding: 8px 20px;
+  padding: 10px 25px;
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: 100%;
-}
-
-.refresh-btn:hover {
-  background: rgba(0, 255, 204, 0.2);
-}
-
-.connect-btn {
-  background: rgba(155, 89, 182, 0.1);
-  color: #9b59b6;
-  border: 1px solid #9b59b6;
-  padding: 8px 20px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  display: flex;
+  font-size: 1em;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 0.9em;
+  gap: 10px;
 }
 
-.connect-btn:hover {
-  background: rgba(155, 89, 182, 0.2);
-  transform: translateY(-1px);
-}
-
-.connect-btn.connected {
-  background: rgba(46, 204, 113, 0.1);
-  color: #2ecc71;
-  border-color: #2ecc71;
-}
-
-.connect-btn.connected:hover {
-  background: rgba(46, 204, 113, 0.2);
+.upload-action-btn:hover {
+  background: rgba(0, 255, 204, 0.2);
+  transform: translateY(-2px);
 }
 
 /* ======================== ERROR MESSAGES ======================== */
@@ -291,42 +273,4 @@ body {
 
 .platform-option input[type="checkbox"] {
   accent-color: #00ffcc;
-}
-
-/* ======================== FILE PREVIEW & UPLOAD BUTTON ======================== */
-.upload-preview-container {
-  margin: 40px 0;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 20px;
-  border-radius: 15px;
-  border: 1px solid rgba(0, 255, 204, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 255, 204, 0.1);
-}
-
-#filePreview {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  border: 1px solid rgba(0, 255, 204, 0.3);
-}
-
-.upload-action-btn {
-  background: rgba(0, 255, 204, 0.1);
-  color: #00ffcc;
-  border: 1px solid #00ffcc;
-  padding: 10px 25px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1em;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.upload-action-btn:hover {
-  background: rgba(0, 255, 204, 0.2);
-  transform: translateY(-2px);
 }

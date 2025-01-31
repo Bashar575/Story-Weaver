@@ -54,6 +54,7 @@
           placeholder="Spin your narrative..."
           class="story-input"
         ></textarea>
+        <div id="filePreviewContainer" class="file-preview-container"></div>
         
         <!-- Platform Selection -->
         <div class="platform-checkboxes">
@@ -144,9 +145,8 @@
       </div>
     </div>
 
-    <!-- File Preview and Upload Button -->
-    <div class="upload-preview-container">
-      <img id="filePreview" src="placeholder.jpg" alt="Selected file preview">
+    <!-- Upload Button -->
+    <div class="upload-action-container">
       <button class="upload-action-btn" onclick="uploadFile()">
         <i class="fas fa-cloud-upload-alt"></i> Upload Story
       </button>

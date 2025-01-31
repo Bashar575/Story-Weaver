@@ -148,6 +148,7 @@ function getSelectedPlatforms() {
 function refreshUploadUI() {
   document.getElementById('fileInput').value = '';
   document.getElementById('storyCaption').value = '';
+  document.getElementById('filePreviewContainer').innerHTML = ''; // Clear file preview
   document.querySelectorAll('.platform-option input').forEach(input => {
     input.checked = true; // Reset to default checked state
   });
@@ -173,23 +174,26 @@ uploadArea.addEventListener('drop', (e) => {
   const files = e.dataTransfer.files;
   if (files.length > 0) {
     document.getElementById('fileInput').files = files;
-    uploadFile();
+    handleFilePreview(files[0]); // Show preview of the dropped file
   }
 });
 
 // ========================
 // FILE PREVIEW FUNCTIONALITY
 // ========================
+function handleFilePreview(file) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const filePreviewContainer = document.getElementById('filePreviewContainer');
+    filePreviewContainer.innerHTML = `<img src="${e.target.result}" alt="Selected file preview">`;
+  };
+  reader.readAsDataURL(file);
+}
+
 document.getElementById('fileInput').addEventListener('change', function (e) {
   const file = e.target.files[0];
   if (file) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      const filePreview = document.getElementById('filePreview');
-      filePreview.src = e.target.result;
-      filePreview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
+    handleFilePreview(file); // Show preview of the selected file
   }
 });
 
