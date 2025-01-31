@@ -247,3 +247,32 @@ async function refreshPlatformStats(platform) {
     showMessage(`Please connect to ${platform} first.`, 'error');
   }
 }
+async function uploadFile() {
+  const fileInput = document.getElementById('storyUpload');
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert('Please select a file');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      alert('File uploaded successfully!');
+    } else {
+      alert('File upload failed');
+    }
+  } catch (error) {
+    console.error('Upload error:', error);
+    alert('File upload failed');
+  }
+}
