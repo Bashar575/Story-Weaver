@@ -178,6 +178,22 @@ uploadArea.addEventListener('drop', (e) => {
 });
 
 // ========================
+// FILE PREVIEW FUNCTIONALITY
+// ========================
+document.getElementById('fileInput').addEventListener('change', function (e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const filePreview = document.getElementById('filePreview');
+      filePreview.src = e.target.result;
+      filePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// ========================
 // INITIALIZATION
 // ========================
 window.addEventListener('load', async () => {
@@ -219,4 +235,49 @@ async function refreshPlatformStats(platform) {
   } else {
     showMessage(`Please connect to ${platform} first.`, 'error');
   }
+}
+
+// ========================
+// MESSAGE DISPLAY
+// ========================
+function showMessage(message, type) {
+  const errorDisplay = document.getElementById('errorDisplay');
+  errorDisplay.textContent = message;
+  errorDisplay.classList.add('visible', type);
+
+  setTimeout(() => {
+    errorDisplay.classList.remove('visible', type);
+  }, 3000);
+}
+
+// ========================
+// ANALYTICS CHART INITIALIZATION
+// ========================
+function initAnalyticsChart() {
+  const ctx = document.getElementById('analyticsChart').getContext('2d');
+  analyticsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Engagement',
+        data: [],
+        borderColor: '#00ffcc',
+        backgroundColor: 'rgba(0, 255, 204, 0.1)',
+        borderWidth: 2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+        y: { grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
 }

@@ -292,3 +292,41 @@ body {
 .platform-option input[type="checkbox"] {
   accent-color: #00ffcc;
 }
+
+/* ======================== FILE PREVIEW & UPLOAD BUTTON ======================== */
+.upload-preview-container {
+  margin: 40px 0;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 255, 204, 0.1);
+}
+
+#filePreview {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(0, 255, 204, 0.3);
+}
+
+.upload-action-btn {
+  background: rgba(0, 255, 204, 0.1);
+  color: #00ffcc;
+  border: 1px solid #00ffcc;
+  padding: 10px 25px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1em;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-action-btn:hover {
+  background: rgba(0, 255, 204, 0.2);
+  transform: translateY(-2px);
+}
