@@ -30,25 +30,22 @@ let analyticsChart;
 
 // Initialize Firebase
 const firebaseConfig = {
-
   apiKey: "AIzaSyCVnk08gIu8FxxVpBJZF1XqISJoVzeLBHI",
-
   authDomain: "web-weaver-cda29.firebaseapp.com",
-
   projectId: "web-weaver-cda29",
-
-  storageBucket: "web-weaver-cda29.firebasestorage.app",
-
+  storageBucket: "web-weaver-cda29.appspot.com",
   messagingSenderId: "384391887170",
-
   appId: "1:384391887170:web:eac82ad449276ebb56f0db",
-
   measurementId: "G-S54F8VX9GH"
-
 };
 
 firebase.initializeApp(firebaseConfig);
 const storage = firebase.storage();
+
+// GitHub Configuration
+const GITHUB_TOKEN = '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'; // Replace with your token
+const REPO_OWNER = 'Bashar575'; // Replace with your GitHub username
+const REPO_NAME = 'Story-Weaver.github.io'; // Replace with your repository name
 
 // ========================
 // DATABASE INITIALIZATION
@@ -63,7 +60,7 @@ db.version(2).stores({
 // FILE UPLOAD FUNCTIONALITY
 // ========================
 async function uploadFile() {
-  const fileInput = document.getElementById('storyUpload');
+  const fileInput = document.getElementById('fileInput');
   const file = fileInput.files[0];
   const caption = document.getElementById('storyCaption').value;
   const loadingOverlay = document.getElementById('uploadLoading');
@@ -76,27 +73,52 @@ async function uploadFile() {
   try {
     // Show loading state
     loadingOverlay.style.display = 'flex';
-    
-    // Create storage reference with organized path
-    const filePath = `uploads/${Date.now()}_${file.name}`;
-    const storageRef = storage.ref(filePath);
-    
-    // Upload file with metadata
-    const snapshot = await storageRef.put(file, {
-      customMetadata: {
-        caption: caption,
-        platforms: getSelectedPlatforms().join(','),
-        uploadDate: new Date().toISOString()
-      }
-    });
-    
-    // Get download URL
-    const downloadURL = await snapshot.ref.getDownloadURL();
+
+    // Choose between Firebase or GitHub upload
+    const useFirebase = true; // Set to false to use GitHub instead
+    let fileURL;
+
+    if (useFirebase) {
+      // Upload to Firebase
+      const filePath = `uploads/${Date.now()}_${file.name}`;
+      const storageRef = storage.ref(filePath);
+      const snapshot = await storageRef.put(file, {
+        customMetadata: {
+          caption: caption,
+          platforms: getSelectedPlatforms().join(','),
+          uploadDate: new Date().toISOString()
+        }
+      });
+      fileURL = await snapshot.ref.getDownloadURL();
+    } else {
+      // Upload to GitHub
+      const content = await file.text();
+      const base64Content = btoa(content);
+
+      const response = await fetch(
+        `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/uploads/${file.name}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `token ${GITHUB_TOKEN}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'File upload',
+            content: base64Content
+          })
+        }
+      );
+
+      if (!response.ok) throw new Error('Upload failed');
+      const data = await response.json();
+      fileURL = data.content.download_url;
+    }
 
     // Store metadata in Dexie
     await db.drafts.add({
       content: {
-        fileURL: downloadURL,
+        fileURL: fileURL,
         caption: caption,
         platforms: getSelectedPlatforms(),
         fileName: file.name,
@@ -108,7 +130,6 @@ async function uploadFile() {
 
     showMessage('File uploaded successfully!', 'success');
     refreshUploadUI();
-    updateUploadHistory();
   } catch (error) {
     showMessage(`Upload failed: ${error.message}`, 'error');
   } finally {
@@ -125,16 +146,11 @@ function getSelectedPlatforms() {
 }
 
 function refreshUploadUI() {
-  document.getElementById('storyUpload').value = '';
+  document.getElementById('fileInput').value = '';
   document.getElementById('storyCaption').value = '';
   document.querySelectorAll('.platform-option input').forEach(input => {
     input.checked = true; // Reset to default checked state
   });
-}
-
-async function updateUploadHistory() {
-  const uploads = await db.drafts.reverse().toArray();
-  // Implement your UI update logic for showing upload history
 }
 
 // ========================
@@ -156,177 +172,10 @@ uploadArea.addEventListener('drop', (e) => {
   uploadArea.classList.remove('dragover');
   const files = e.dataTransfer.files;
   if (files.length > 0) {
-    document.getElementById('storyUpload').files = files;
+    document.getElementById('fileInput').files = files;
     uploadFile();
   }
 });
-
-// ========================
-// PLATFORM CONNECTION HANDLERS
-// ========================
-function handlePlatformConnection(platform) {
-  const oauthConfig = PLATFORM_OAUTH_URLS[platform];
-  if (!oauthConfig) {
-    showMessage(`Platform ${platform} is not supported.`, 'error');
-    return;
-  }
-
-  // Redirect to platform's OAuth page
-  const authUrl = `${oauthConfig.authUrl}?client_id=${oauthConfig.clientId}&redirect_uri=${oauthConfig.redirectUri}&response_type=code&scope=${oauthConfig.scope}`;
-  const authWindow = window.open(authUrl, `${platform}Auth`, 'width=600,height=700,menubar=no,toolbar=no,location=no,status=no');
-
-  // Check if the popup was blocked
-  if (!authWindow) {
-    showMessage('Popup blocked! Please allow popups for this site.', 'error');
-    return;
-  }
-
-  // Listen for OAuth callback
-  const connectionHandler = async (e) => {
-    if (e.data?.platform === platform && e.data.code) {
-      window.removeEventListener('message', connectionHandler);
-
-      try {
-        // Exchange code for access token
-        const response = await fetch(`${API_BASE}/api/auth/${platform}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: e.data.code, redirectUri: oauthConfig.redirectUri })
-        });
-
-        if (!response.ok) throw new Error('Failed to authenticate');
-
-        const { access_token } = await response.json();
-
-        // Store token and mark as connected
-        platformData[platform].connected = true;
-        await db.connections.put({
-          platform,
-          token: access_token,
-          connectedAt: Date.now()
-        });
-
-        updateConnectionUI(platform);
-        fetchPlatformStats(platform, access_token);
-        showMessage(`${platform} connected successfully!`, 'success');
-      } catch (error) {
-        showMessage(`Connection failed: ${error.message}`, 'error');
-      }
-    }
-  };
-
-  window.addEventListener('message', connectionHandler);
-}
-
-// Fetch platform stats using API
-async function fetchPlatformStats(platform, accessToken) {
-  try {
-    let stats = {};
-    switch (platform) {
-      case 'youtube':
-        stats = await fetchYouTubeStats(accessToken);
-        break;
-      case 'instagram':
-        stats = await fetchInstagramStats(accessToken);
-        break;
-      // Add cases for TikTok and Snapchat
-    }
-
-    platformData[platform].stats = stats;
-    updatePlatformStatsUI(platform);
-  } catch (error) {
-    showMessage(`Failed to fetch ${platform} stats: ${error.message}`, 'error');
-  }
-}
-
-// Example: Fetch YouTube stats
-async function fetchYouTubeStats(accessToken) {
-  const response = await fetch('https://www.googleapis.com/youtube/v3/channels?part=statistics&mine=true', {
-    headers: { Authorization: `Bearer ${accessToken}` }
-  });
-
-  if (!response.ok) throw new Error('Failed to fetch YouTube stats');
-
-  const data = await response.json();
-  return {
-    views: data.items[0].statistics.viewCount,
-    subs: data.items[0].statistics.subscriberCount
-  };
-}
-
-// Example: Fetch Instagram stats
-async function fetchInstagramStats(accessToken) {
-  const response = await fetch('https://graph.instagram.com/me?fields=id,username,media_count', {
-    headers: { Authorization: `Bearer ${accessToken}` }
-  });
-
-  if (!response.ok) throw new Error('Failed to fetch Instagram stats');
-
-  const data = await response.json();
-  return {
-    followers: data.followers_count, // Requires additional API call
-    engagement: 0 // Calculate engagement rate
-  };
-}
-
-// Update platform stats in UI
-function updatePlatformStatsUI(platform) {
-  const stats = platformData[platform].stats;
-  switch (platform) {
-    case 'youtube':
-      document.getElementById('yt-views').textContent = stats.views;
-      document.getElementById('yt-subs').textContent = stats.subs;
-      break;
-    case 'instagram':
-      document.getElementById('ig-followers').textContent = stats.followers;
-      document.getElementById('ig-engagement').textContent = `${stats.engagement}%`;
-      break;
-    // Add cases for TikTok and Snapchat
-  }
-}
-
-// ========================
-// NOTIFICATION SYSTEM
-// ========================
-function showMessage(message, type = 'info') {
-  const notification = document.getElementById('errorDisplay');
-  notification.textContent = message;
-  notification.className = `error-message ${type}`;
-  notification.classList.add('visible');
-
-  setTimeout(() => {
-    notification.classList.remove('visible');
-  }, 3000);
-}
-
-// ========================
-// ANALYTICS & CHART
-// ========================
-function initAnalyticsChart() {
-  const ctx = document.getElementById('analyticsChart').getContext('2d');
-  analyticsChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
-      datasets: [{
-        label: 'Engagement Rate',
-        data: Array.from({ length: 24 }, () => Math.random() * 100),
-        borderColor: '#00ffcc',
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { labels: { color: '#fff' } }
-      },
-      scales: {
-        x: { ticks: { color: '#fff' } },
-        y: { ticks: { color: '#fff' } }
-      }
-    }
-  });
-}
 
 // ========================
 // INITIALIZATION
@@ -369,67 +218,5 @@ async function refreshPlatformStats(platform) {
     fetchPlatformStats(platform, connection.token);
   } else {
     showMessage(`Please connect to ${platform} first.`, 'error');
-  }
-}
-const GITHUB_TOKEN = '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'; // Replace with your token
-const REPO_OWNER = 'Bashar575'; // Replace with your GitHub username
-const REPO_NAME = 'Story-Weaver.github.io'; // Replace with your repository name
-
-async function uploadFile() {
-  const fileInput = document.getElementById('storyUpload');
-  const file = fileInput.files[0];
-  const caption = document.getElementById('storyCaption').value;
-  const loadingOverlay = document.getElementById('uploadLoading');
-
-  if (!file) {
-    showMessage('Please select a file', 'error');
-    return;
-  }
-
-  try {
-    loadingOverlay.style.display = 'flex';
-
-    const content = await file.text();
-    const base64Content = btoa(content);
-
-    const response = await fetch(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/uploads/${file.name}`,
-      {
-        method: 'PUT',
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: 'File upload',
-          content: base64Content
-        })
-      }
-    );
-
-    if (!response.ok) throw new Error('Upload failed');
-
-    const data = await response.json();
-    const fileURL = data.content.download_url;
-
-    // Store metadata in Dexie
-    await db.drafts.add({
-      content: {
-        fileURL: fileURL,
-        caption: caption,
-        platforms: getSelectedPlatforms(),
-        fileName: file.name,
-        fileType: file.type,
-        fileSize: file.size
-      },
-      timestamp: Date.now()
-    });
-
-    showMessage('File uploaded successfully!', 'success');
-    refreshUploadUI();
-  } catch (error) {
-    showMessage(`Upload failed: ${error.message}`, 'error');
-  } finally {
-    loadingOverlay.style.display = 'none';
   }
 }
