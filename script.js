@@ -1,7 +1,7 @@
 // ========================
 // CONSTANTS & VARIABLES
 // ========================
-const API_BASE = 'http://localhost:3000';
+const API_BASE = 'http://localhost:3000'; // Your backend server URL
 const PLATFORM_OAUTH_URLS = {
   youtube: {
     authUrl: 'https://accounts.google.com/o/oauth2/auth',
@@ -56,7 +56,6 @@ const storage = firebase.storage();
 const GITHUB_TOKEN = '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';
 const REPO_OWNER = 'Bashar575';
 const REPO_NAME = 'Story-Weaver.github.io';
-
 
 // ========================
 // DATABASE INITIALIZATION
@@ -201,12 +200,7 @@ function handlePlatformConnection(platform) {
     if (event.origin !== window.location.origin) return;
     if (event.data.code) {
       exchangeCodeForToken(platform, event.data.code)
-        .then(token => {
-          db.connections.put({ 
-            platform, 
-            token, 
-            connectedAt: Date.now() 
-          });
+        .then(() => {
           updateConnectionUI(platform);
           showMessage(`${platform.charAt(0).toUpperCase() + platform.slice(1)} connected!`, 'success');
         })
@@ -226,6 +220,31 @@ async function exchangeCodeForToken(platform, code) {
 }
 
 // ========================
+// FETCH INSTAGRAM STATS
+// ========================
+async function fetchInstagramStats() {
+  try {
+    const response = await fetch(`${API_BASE}/api/instagram/stats`, {
+      credentials: 'include' // Include cookies for session management
+    });
+    if (!response.ok) throw new Error('Failed to fetch Instagram stats');
+    const data = await response.json();
+
+    // Update UI with Instagram stats
+    const statsElement = document.querySelector('#instagram .stats');
+    if (statsElement) {
+      statsElement.innerHTML = `
+        <div>Followers: ${data.followers_count}</div>
+        <div>Engagement: ${(data.engagement_rate || 0).toFixed(2)}%</div>
+      `;
+    }
+  } catch (error) {
+    console.error('Error fetching Instagram stats:', error);
+    showMessage('Failed to fetch Instagram stats', 'error');
+  }
+}
+
+// ========================
 // UI HELPERS
 // ========================
 function updateConnectionUI(platform) {
@@ -234,6 +253,10 @@ function updateConnectionUI(platform) {
     button.classList.add('connected');
     button.innerHTML = `<i class="fas fa-check-circle"></i> Connected`;
     button.disabled = true;
+
+    if (platform === 'instagram') {
+      fetchInstagramStats(); // Fetch stats after connecting
+    }
   }
 }
 
@@ -285,10 +308,8 @@ window.addEventListener('load', async () => {
   document.querySelectorAll('.refresh-btn').forEach(button => {
     button.addEventListener('click', async () => {
       const platform = button.closest('.platform-card').id;
-      const connection = await db.connections.get(platform);
-      if (connection?.token) {
-        showMessage(`Refreshing ${platform} stats...`, 'info');
-        // Add actual stats refresh logic here
+      if (platform === 'instagram') {
+        fetchInstagramStats(); // Refresh Instagram stats
       } else {
         showMessage(`Please connect to ${platform} first`, 'error');
       }
